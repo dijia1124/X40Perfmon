@@ -104,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
                 int temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
-                float batTemp = temperature / 10f; // 将温度转换为摄氏度
-                // 更新UI显示电池温度
+                float batTemp = temperature / 10f;
                 batTempTextView.setText("Battery Temperature: " + batTemp + " °C");
                 floatingTempTextView.setText("BatTemp: " + batTemp);
             }
