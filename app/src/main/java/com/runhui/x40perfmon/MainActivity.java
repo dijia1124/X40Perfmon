@@ -2,6 +2,8 @@ package com.runhui.x40perfmon;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -82,10 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
         batTempTextView = findViewById(R.id.batTempTextView);
         floatingTempTextView = floatingView.findViewById(R.id.floatingTempTextView);
-        float batTemp = getBatteryTemperature();
-        // Set the battery temperature in the TextView
-        batTempTextView.setText("Battery Temperature: " + batTemp + " °C");
-        floatingTempTextView.setText("BatTemp: " + batTemp);
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(batteryReceiver, intentFilter);
     }
 
     @Override
@@ -96,8 +96,21 @@ public class MainActivity extends AppCompatActivity {
         if (windowManager != null && floatingView != null) {
             windowManager.removeView(floatingView);
         }
-    }
 
+        unregisterReceiver(batteryReceiver);
+    }
+    private BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+                int temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
+                float batTemp = temperature / 10f; // 将温度转换为摄氏度
+                // 更新UI显示电池温度
+                batTempTextView.setText("Battery Temperature: " + batTemp + " °C");
+                floatingTempTextView.setText("BatTemp: " + batTemp);
+            }
+        }
+    };
     private float getBatteryTemperature() {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = this.registerReceiver(null, intentFilter);
